@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>El Buen Comer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['"Fraunces"', 'serif'],
+              sans: ['"Inter"', 'sans-serif'],
+              montserrat: ['"Montserrat"', 'sans-serif'],
+            },
+            colors: {
+              base: {
+                ivory: '#F7F2EA',
+                white: '#FFFFFF',
+                border: '#E7DED3',
+                text: '#141414',
+                textSec: '#4B4B4B'
+              },
+              gourmet: {
+                bg: '#0E0E0E',        /* American Psycho Black */
+                champagne: '#F3E8D3', /* New Champagne Background */
+                text: '#F5F5F5',      /* Off White (for inside cards) */
+                sub: '#9A9A9A',       /* Secondary Gray */
+                gold: '#C9A24D',      /* Muted Gold */
+                primary: '#0B0F14',
+                accent: '#F7E7CE',
+              },
+              community: {
+                bg: '#F6F6F6',
+                text: '#222222',
+                sub: '#666666',
+                olive: '#6B8E23',     /* Olive Green Accent */
+                terracotta: '#C45A38',/* Terracotta Accent */
+                sage: '#A9B494',
+                coral: '#E07A5F',
+                dark: '#292f36'
+              }
+            },
+            boxShadow: {
+              'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+              /* 3D GOURMET: Deep projection with top-light reflection (inset) */
+              '3d-gourmet': '0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 1px 0 0 rgba(255, 255, 255, 0.1) inset',
+              '3d-gourmet-hover': '0 35px 60px -15px rgba(0, 0, 0, 1), 0 0 0 1px rgba(218, 171, 45, 0.3) inset',
+              /* 3D COMMUNITY: Soft volumetric lift */
+              '3d-community': '0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04), 0 1px 0 0 rgba(255,255,255,0.8) inset',
+              '3d-community-hover': '0 20px 40px -5px rgba(107, 142, 35, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.06)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #F7F2EA;
+        color: #141414;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #F7F2EA;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #D4D9B2;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #A9B494;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
