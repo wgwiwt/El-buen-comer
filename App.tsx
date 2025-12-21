@@ -311,54 +311,56 @@ const App: React.FC = () => {
               )}
             </div>
 
-            {/* HEADER ACTIONS */}
-            {hasSearched && (
-              <div className="flex items-center gap-2 md:gap-3 ml-auto shrink-0 z-50">
+          </div>
+          {/* END OF BRANDING DIV */}
+
+          {/* HEADER ACTIONS - Now a sibling, correctly positioned on the right */}
+          {hasSearched && (
+            <div className="flex items-center gap-2 md:gap-3 shrink-0 z-50">
+              <button
+                onClick={handleReset}
+                title="Nueva búsqueda"
+                className={`
+                    group flex items-center justify-center rounded-full shadow-lg transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
+                    h-10 md:h-12 overflow-hidden
+                    w-10 md:w-12 hover:w-40 md:hover:w-48 hover:px-4
+                    active:scale-95
+                    ${isGourmet
+                    ? 'bg-black/90 text-gourmet-gold border border-gourmet-gold/20 hover:bg-black'
+                    : 'bg-community-olive text-white border border-transparent hover:bg-[#5a7a1b]'
+                  }
+                  `}
+              >
+                <RotateCcw className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
+                <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap ml-0 group-hover:ml-2 text-[10px] md:text-xs font-bold tracking-widest uppercase transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                  Nueva búsqueda
+                </span>
+              </button>
+
+              {currentRestaurants.length > 0 && (
                 <button
-                  onClick={handleReset}
-                  title="Nueva búsqueda"
+                  onClick={handleExport}
+                  title="Descargar Guía HTML"
                   className={`
-                     group flex items-center justify-center rounded-full shadow-lg transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
-                     h-10 md:h-12 overflow-hidden
-                     w-10 md:w-12 hover:w-40 md:hover:w-48 hover:px-4
-                     active:scale-95
-                     ${isGourmet
-                      ? 'bg-black/90 text-gourmet-gold border border-gourmet-gold/20 hover:bg-black'
-                      : 'bg-community-olive text-white border border-transparent hover:bg-[#5a7a1b]'
+                      group flex items-center justify-center rounded-full shadow-lg transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
+                      h-10 md:h-12 overflow-hidden
+                      w-10 md:w-12 hover:w-40 md:hover:w-48 hover:px-4
+                      active:scale-95
+                      ${isGourmet
+                      ? 'bg-[#DAAB2D] text-black hover:brightness-110'
+                      : 'bg-community-coral text-white hover:brightness-110'
                     }
-                   `}
+                    `}
                 >
-                  <RotateCcw className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
+                  <Download className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
                   <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap ml-0 group-hover:ml-2 text-[10px] md:text-xs font-bold tracking-widest uppercase transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                    Nueva búsqueda
+                    Descargar Guía
                   </span>
                 </button>
+              )}
+            </div>
+          )}
 
-                {currentRestaurants.length > 0 && (
-                  <button
-                    onClick={handleExport}
-                    title="Descargar Guía HTML"
-                    className={`
-                       group flex items-center justify-center rounded-full shadow-lg transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
-                       h-10 md:h-12 overflow-hidden
-                       w-10 md:w-12 hover:w-40 md:hover:w-48 hover:px-4
-                       active:scale-95
-                       ${isGourmet
-                        ? 'bg-[#DAAB2D] text-black hover:brightness-110'
-                        : 'bg-community-coral text-white hover:brightness-110'
-                      }
-                     `}
-                  >
-                    <Download className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
-                    <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap ml-0 group-hover:ml-2 text-[10px] md:text-xs font-bold tracking-widest uppercase transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                      Descargar Guía
-                    </span>
-                  </button>
-                )}
-              </div>
-            )}
-
-          </div>
         </div>
       </header>
 
