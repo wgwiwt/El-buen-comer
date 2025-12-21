@@ -79,7 +79,9 @@ export const fetchRestaurants = async (
       `;
     } else {
       geoLogicInstruction = `
-      SEARCH SCOPE: Search the OFFICIAL_REGISTRY STRICTLY for restaurants where the Municipality matches "${location}". Do not include nearby towns.
+      SEARCH SCOPE: Search the OFFICIAL_REGISTRY for restaurants where the Municipality matches "${location}".
+      - ALLOW exact matches (e.g. "Madrid" == "Madrid").
+      - ALLOW substring matches if it refers to the same place (e.g. "Donostia" matches "Donostia / San Sebastián").
       `;
     }
 
@@ -92,16 +94,20 @@ export const fetchRestaurants = async (
     
     TASK:
     1. FILTER: Search within OFFICIAL_REGISTRY for restaurants in the requested location: "${location}".
-       - You must match the "Municipality" or "Province" in the registry.
-       - STRICT MEANING: If the registry says "Madrid", it matches the city/province of Madrid.
+       ${geoLogicInstruction}
        - CRITICAL: IF NO RESTAURANTS MATCH THE LOCATION "${location}" IN THE REGISTRY, RETURN AN EMPTY ARRAY [].
-       - DO NOT RETURN RANDOM RESTAURANTS FROM OTHER LOCATIONS (e.g. Do not return Alicante restaurants if user asks for Madrid).
+       - DO NOT RETURN RANDOM RESTAURANTS FROM OTHER LOCATIONS.
        
     2. ENRICH: Once you have identified the valid restaurants from the list (Max 7), use your internal knowledge to complete the missing details for the card (description, ambiance, dish).
        * DO NOT INVENT RESTAURANTS. If it's not in the OFFICIAL_REGISTRY, do not return it.
        * ONLY return restaurants that strictly appear in the provided text list.
 
-    3. FORMAT: Return a JSON array with exactly these fields:.g., "Minimalista", "Casona histórica", "Vistas al mar").
+    3. FORMAT: Return a JSON array with exactly these fields:
+       - name: Exact name from the registry.
+       - rating: Use 4.8 or 4.9 for these top-tier places.
+       - awards: The awards listed in the registry line (e.g. "1 estrella michelin, 2 soles").
+       - description: A brief, appetizing description in Spanish (20 words).
+       - ambiance: Short phrase in Spanish (e.g., "Minimalista", "Casona histórica").
        - signatureDish: Their most famous dish or tasting menu name.
        - price: Approximate price per person (e.g., "60-90").
        - category: One word (e.g., "Creativa", "Mariscos", "Tradicional").
@@ -115,7 +121,7 @@ export const fetchRestaurants = async (
     ${OFFICIAL_REGISTRY}
     ---
 
-    Return a JSON Array of max 10 objects with keys: name, rating (use 4.8 or 4.9), awards (exactly from list), price, description, ambiance, signatureDish, address, category.
+    Return a JSON Array of max 10 objects with keys: name, rating, awards, price, description, ambiance, signatureDish, address, category.
     Ensure ALL strings are in SPANISH.
     `;
   } else {
@@ -173,7 +179,7 @@ export const fetchRestaurants = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
