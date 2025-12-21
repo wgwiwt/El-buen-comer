@@ -6,7 +6,7 @@ import { generateMobileGuideHTML } from './utils/exportUtils';
 import { Restaurant, AppTab, SearchParams } from './types';
 import { Download, RotateCcw, UtensilsCrossed } from 'lucide-react';
 
-const HERO_IMAGE = "https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=2940&auto=format&fit=crop";
+const HERO_IMAGE = "/assets/images/hero-bg.jpg";
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.GOURMET);
