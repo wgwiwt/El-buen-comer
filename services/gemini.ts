@@ -24,22 +24,22 @@ const parseRestaurantResponse = (text: string, location: string): Restaurant[] =
     // Attempt to extract JSON from code blocks if present
     const jsonMatch = text.match(JSON_BLOCK_REGEX) || text.match(CODE_BLOCK_REGEX);
     const jsonString = jsonMatch ? jsonMatch[1] : text;
-    
+
     const data = JSON.parse(jsonString);
-    
+
     if (Array.isArray(data)) {
       return data.map((item: RawRestaurantResponse) => ({
         name: item.name || "Restaurante Desconocido",
         rating: typeof item.rating === 'number' ? item.rating : 4.5,
         awards: item.awards || "",
         // Force price to be string or number, default to formatted string if missing
-        price: item.price || "Precio medio", 
+        price: item.price || "Precio medio",
         ambiance: item.ambiance || "Local acogedor",
         description: item.description || "Cocina local.",
         signatureDish: item.signatureDish || "Especialidad de la casa",
         category: item.category || "Casual",
-        address: item.address || location, 
-        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.name || "") + " " + location)}`
+        address: item.address || location,
+        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("restaurante " + (item.name || "") + ", " + (item.address || location))}`
       }));
     }
     return [];
@@ -50,11 +50,11 @@ const parseRestaurantResponse = (text: string, location: string): Restaurant[] =
 };
 
 export const fetchRestaurants = async (
-  location: string, 
-  distance: string, 
+  location: string,
+  distance: string,
   type: AppTab
 ): Promise<Restaurant[]> => {
-  
+
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
     throw new Error("API Key not found");
@@ -68,7 +68,7 @@ export const fetchRestaurants = async (
   if (type === AppTab.GOURMET) {
     // Lógica Específica para GOURMET con Radio
     const isExpandedSearch = distance === '15km' || distance === '30km';
-    
+
     let geoLogicInstruction = "";
     if (isExpandedSearch) {
       geoLogicInstruction = `
@@ -84,25 +84,28 @@ export const fetchRestaurants = async (
     }
 
     systemInstruction = `You are a strict gastronomic auditor. Your ONLY source of valid restaurants is the OFFICIAL_REGISTRY provided below.
+    The OFFICIAL_REGISTRY is a list of text lines where each line roughly follows this structure:
+    "Region Province Municipality Restaurant_Name Awards"
+    
+    * IMPORTANT: The column separators are spaces/tabs. You must deduce which part is the Restaurant Name by looking at the context.
+    * The 'Restaurant_Name' is usually after the Municipality and before the Awards (Michelin, Soles, Bib Gourmand, Recomendado).
+    
+    TASK:
+    1. FILTER: Search within OFFICIAL_REGISTRY for restaurants in the requested location: "${location}".
+       - You must match the "Municipality" or "Province" in the registry.
+       - STRICT MEANING: If the registry says "Madrid", it matches the city/province of Madrid.
+       - CRITICAL: IF NO RESTAURANTS MATCH THE LOCATION "${location}" IN THE REGISTRY, RETURN AN EMPTY ARRAY [].
+       - DO NOT RETURN RANDOM RESTAURANTS FROM OTHER LOCATIONS (e.g. Do not return Alicante restaurants if user asks for Madrid).
+       
+    2. ENRICH: Once you have identified the valid restaurants from the list (Max 7), use your internal knowledge to complete the missing details for the card (description, ambiance, dish).
+       * DO NOT INVENT RESTAURANTS. If it's not in the OFFICIAL_REGISTRY, do not return it.
+       * ONLY return restaurants that strictly appear in the provided text list.
 
-    OFFICIAL_REGISTRY format: "Restaurant Name (Province, Municipality) - (Awards)"
-
-    YOUR TASK IS A TWO-STEP PROCESS:
-
-    1. FILTER: ${geoLogicInstruction}
-       - STRICT CONSTRAINT: You must ONLY return restaurants that appear verbatim in the registry. Do not hallucinate or add restaurants not in the list.
-       - QUANTITY LIMIT: If there are many matches (e.g., > 10), select ONLY the top 10 most prestigious ones (prioritize Michelin Stars, then Soles, then Bib Gourmand).
-
-    2. ENRICH: Once you have identified the valid restaurants (Max 10), use your internal knowledge (simulate a web search) to complete the missing details for the card.
-       - IMPORTANT: All text (description, ambiance, category, etc.) MUST BE IN SPANISH.
-       - description: A short, compelling description of the chef's cuisine/philosophy (max 25 words).
-       - ambiance: The style/interior (e.g., "Minimalista", "Casona histórica", "Vistas al mar").
+    3. FORMAT: Return a JSON array with exactly these fields:.g., "Minimalista", "Casona histórica", "Vistas al mar").
        - signatureDish: Their most famous dish or tasting menu name.
        - price: Approximate price per person (e.g., "60-90").
        - category: One word (e.g., "Creativa", "Mariscos", "Tradicional").
        - address: The specific Municipality where the restaurant is located.
-
-    If no matches are found in the registry for the scope defined, return an empty JSON array [].
     `;
 
     prompt = `User Location: "${location}". Radius requested: "${distance}".
@@ -119,37 +122,42 @@ export const fetchRestaurants = async (
     // --- LÓGICA COMUNIDAD (Siempre Casco Urbano) ---
     // NOTA: Ignoramos el parámetro 'distance' para Community por requisito de negocio,
     // excepto para informar a la IA que se limite al casco urbano.
-    
+
     systemInstruction = `Eres un experto local en gastronomía española y analista de reseñas. 
     
     IDIOMA OBLIGATORIO: Todo el texto generado debe estar en ESPAÑOL.
     
     RESTRICCIÓN GEOGRÁFICA ESTRICTA:
-    - Aunque el usuario pida un radio amplio, para la categoría "Comunidad" DEBES LIMITARTE EXCLUSIVAMENTE AL CASCO URBANO de la localidad: "${location}".
-    - NO busques en pueblos vecinos ni en afueras lejanas. Cíñete a lo local.
+    - Para la categoría "Comunidad" DEBES LIMITARTE EXCLUSIVAMENTE AL CASCO URBANO de la localidad: "${location}".
+    - NO busques en pueblos vecinos ni en afueras lejanas.
+    - IMPORTANTE: Solo devuelve restaurantes que SEPAS CON CERTEZA QUE EXISTEN y están abiertos.
 
     TU MISIÓN:
-    1. Simula una referencia cruzada de datos entre Google Maps, TripAdvisor y TheFork para el casco urbano de "${location}".
-    2. Selecciona restaurantes que tengan consistentemente altas valoraciones (4.5+ estrellas) en estas plataformas.
-    3. Descarta cadenas de comida rápida o trampas para turistas. Prioriza la autenticidad y el favor de los locales.
+    1. Cross-Reference (Referencia Cruzada): Busca restaurantes que sean "Top Rated" TANTO en Google Maps como en TripAdvisor.
+    2. FILTRO DE POPULARIDAD ESTRICTO: Solo incluye restaurantes que tengan MÁS DE 300 RESEÑAS (combinando ambas plataformas o en Google Maps).
+    3. TOLERANCIA CERO CON LA INVENCIÓN: Busca hasta encontrar MÍNIMO 12 restaurantes REALES.
+    4. Si el restaurante no existe en tu base de conocimiento o en Google Maps, NO LO PONGAS.
+    5. Descarta cadenas de comida rápida. Prioriza la autenticidad.
     
     Estilo de respuesta:
     - description: Describe la COMIDA y el estilo de cocina en 20-30 palabras (en Español).
-    - ambiance: Tipo de local (Ej: "Taberna bulliciosa", "Terraza familiar", "Romántico", "Industrial").
+    - ambiance: Tipo de local (Ej: "Taberna bulliciosa", "Terraza familiar", "Romántico-Elegante", "Industrial").
     - category: Una o dos palabras en Español (Ej: "Tapas", "Asador", "Mexicano", "Italiana", "Fusión").
     - signatureDish: Nombre del plato en español.
     - address: SOLO "MUNICIPIO, PROVINCIA".
     `;
 
-    prompt = `Busca 15 restaurantes favoritos de la comunidad, SITUADOS ESTRICTAMENTE EN EL CASCO URBANO DE "${location}".
+    prompt = `Busca entre 12 y 15 restaurantes favoritos de la comunidad, SITUADOS ESTRICTAMENTE EN EL CASCO URBANO DE "${location}".
     
     CRITERIOS DE SELECCIÓN:
-    - Cantidad: Genera una lista de 15 candidatos de alta calidad para asegurar variedad.
-    - Calidad: Basado en referencias cruzadas de Google, TripAdvisor y TheFork.
-    - Exclusiones: NO incluyas restaurantes que ya estén en la guía Michelin/Repsol (esos van en la otra pestaña).
+    - REALISMO TOTAL: Prohibido inventar nombres. Todos los restaurantes deben ser encontrables en Google Maps.
+    - DOBLE VALIDACIÓN: Deben tener alta puntuación en Google Maps Y TripAdvisor.
+    - VOLUMEN: Mínimo 300 reseñas (reviews) verificables.
+    - Calidad: Basado en popularidad real.
+    - Exclusiones: NO incluyas restaurantes que ya estén en la guía Michelin/Repsol.
 
     Devuelve un JSON con:
-    - name (string)
+    - name (string exacto como aparece en Google)
     - rating (number, ej 4.6)
     - price (number o string ej "20-30"): Coste medio.
     - awards: Dejar vacío o poner "Recomendado local", "Certificado Excelencia", etc.
@@ -169,7 +177,7 @@ export const fetchRestaurants = async (
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
-        temperature: 0.3, 
+        temperature: 0.1,
         tools: [{ googleMaps: {} }],
       }
     });
