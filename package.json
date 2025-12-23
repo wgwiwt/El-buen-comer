@@ -1,5 +1,5 @@
 {
-  "name": "2025-12-19-el-buen-comer",
+  "name": "el-buen-comer",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,15 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@google/genai": "^1.33.0",
-    "lucide-react": "^0.561.0",
+    "react-dom": "^19.2.3",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "@google/genai": "^1.33.0",
+    "lucide-react": "^0.561.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
-    "firebase-tools": "^15.1.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
