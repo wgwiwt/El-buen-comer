@@ -223,11 +223,11 @@ export const fetchRestaurants = async (
   }
 
   try {
-    // --- FINAL CONFIGURATION: GEMINI 1.5 PRO (BALANCED & STABLE) ---
-    // User requested this specific model for testing tomorrow.
+    // --- FINAL CONFIGURATION: GEMINI 2.5 PRO (AVAILABLE & HIGH QUALITY) ---
+    // User key has access to 2.5 series.
 
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-pro',
+      model: 'gemini-2.5-pro',
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
@@ -235,13 +235,19 @@ export const fetchRestaurants = async (
       }
     });
 
-    const fullText = typeof response.text === 'function' ? response.text() : response.text;
+    // In @google/genai v1+, response.text is often a getter.
+    // We cast relevant types to avoid TS errors if types are slightly mismatched.
+
+    const fullText = (response as any).text instanceof Function
+      ? (response as any).text()
+      : (response as any).text;
+
     console.log("Gemini Raw Response:", fullText); // Debug log
 
     // Call onUpdate once at the end if provided, to satisfy the interface
-    if (onUpdate) {
+    if (onUpdate && typeof fullText === 'string') {
       try {
-        const parsed = parseRestaurantResponse(fullText as string, location);
+        const parsed = parseRestaurantResponse(fullText, location);
         onUpdate(parsed);
       } catch (e) {
         console.warn("Could not parse for onUpdate:", e);
