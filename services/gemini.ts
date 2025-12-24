@@ -223,11 +223,11 @@ export const fetchRestaurants = async (
   }
 
   try {
-    // --- FINAL CONFIGURATION: GEMINI 2.5 PRO (AVAILABLE & HIGH QUALITY) ---
-    // User key has access to 2.5 series.
+    // --- FINAL CONFIGURATION: GEMINI FLASH LATEST (STABLE & FREE TIER FRIENDLY) ---
+    // Confirmed working model with available quota.
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro',
+      model: 'gemini-flash-latest',
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
