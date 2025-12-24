@@ -86,7 +86,9 @@ const parseRestaurantResponse = (text: string, location: string): Restaurant[] =
         signatureDish: item.signatureDish || "Especialidad de la casa",
         category: item.category || "Casual",
         address: item.address || location,
-        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`restaurante ${item.name || ""}, ${item.address || location}`)}`
+        // User requested format: "restaurante (nombre) (localidad sin dirección)"
+        // item.address is prompt-engineered to be "Municipio, Provincia" so it acts as locality.
+        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`restaurante ${item.name || ""} ${item.address || location}`)}`
       }));
     }
     return [];
