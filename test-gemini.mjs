@@ -6,14 +6,11 @@ async function testConnection() {
     const apiKey = process.env.GEMINI_API_KEY;
     const ai = new GoogleGenAI({ apiKey });
 
-    // "gemini-flash-latest" is often a safe bet for free tier
-    const modelName = "gemini-flash-latest";
-
-    console.log(`Testing ${modelName}...`);
+    console.log("Testing gemini-2.5-pro as requested...");
     try {
         const response = await ai.models.generateContent({
-            model: modelName,
-            contents: "Hola, funcionas?",
+            model: 'gemini-2.5-pro',
+            contents: "Dime un plato típico de Valencia",
         });
 
         let text;
@@ -23,10 +20,12 @@ async function testConnection() {
             text = response.text;
         }
 
-        console.log(`✅ SUCCESS! Response: ${text.substring(0, 50)}`);
+        console.log("✅ SUCCESS! Response received:");
+        console.log(text);
     } catch (error) {
-        console.log(`❌ FAILED`);
+        console.log("❌ ERROR FAILED:");
         if (error.message) console.log(error.message);
+        else console.log(error);
     }
 }
 
