@@ -223,11 +223,11 @@ export const fetchRestaurants = async (
   }
 
   try {
-    // --- FINAL CONFIGURATION: GEMINI 2.5 PRO (USER REQUESTED) ---
-    // Switched back to 2.5-pro for testing purposes as per user request.
+    // --- FINAL CONFIGURATION: GEMINI 3 FLASH (USER REQUESTED & VERIFIED) ---
+    // User requested gemini-3-flash. Verified active as 'gemini-3-flash-preview'.
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro',
+      model: 'models/gemini-3-flash-preview', // Requires full name or exact alias
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,

@@ -6,10 +6,12 @@ async function testConnection() {
     const apiKey = process.env.GEMINI_API_KEY;
     const ai = new GoogleGenAI({ apiKey });
 
-    console.log("Testing gemini-2.5-pro as requested...");
+    const modelName = 'gemini-3-flash-preview';
+
+    console.log(`Testing ${modelName}...`);
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
+            model: modelName,
             contents: "Dime un plato típico de Valencia",
         });
 
